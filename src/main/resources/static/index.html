@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMSIT Media Storage</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"
+          type='text/css'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: lightseagreen;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header img {
+            max-width: 50px;
+            vertical-align: middle;
+            margin-right: 1rem;
+        }
+
+        main {
+            max-width: 350px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            margin: 1rem 0;
+            padding: 2rem;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        form input[type="file"],
+        form input[type="text"],
+        form input[type="password"] {
+            width: 94%;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        form button {
+            display: block;
+            width: 50%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        #file-list {
+            margin: 2rem 0;
+        }
+
+        #file-list h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+
+        #file-list table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            border-spacing: 0;
+        }
+
+        #file-list th, #file-list td {
+            border: 0px solid #ddd;
+            border: none;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #file-list th {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+
+        #file-list .button-container button,
+        #file-list .button-container a {
+            border: none; /* Remove border from buttons */
+            border-radius: 4px; /* Rounded corners */
+            padding: 0.5rem 1rem; /* Adjust padding as needed */
+            font-size: 1rem; /* Font size */
+            cursor: pointer; /* Pointer cursor */
+            margin: 0; /* Remove default margins */
+        }
+
+        #file-list td button {
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        #file-list td .download-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        #file-list td .word-count-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        #file-list td .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #file-list td .word-count-btn:hover {
+            background-color: #218838;
+        }
+
+        #word-count {
+            display: none; /* Initially hide the word count div */
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        #file-list td .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 0.2rem;
+        }
+
+        #word-count table {
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+        }
+
+        #word-count th, #word-count td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #word-count th {
+            text-align: center;
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+    <script>
+        function login(event) {
+            event.preventDefault();
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            if (username === "admin" && password === "admin2002") {
+                document.getElementById("login-page").style.display = "none";
+                document.getElementById("main-page").style.display = "block";
+                loadFiles();
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        }
+
+        function loadFiles() {
+            fetch('/files/list')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        var fileList = document.getElementById("file-list");
+                        var fileListHtml = "<h1>Uploaded Files</h1><table><thead><tr></tr></thead><tbody>";
+                        data.forEach(file => {
+                            fileListHtml += `<tr><td>${file}</td><td class="button-container">${file.endsWith('.txt') ? `<button class="word-count-btn" onclick="getWordCount('${file}')">Word Count</button>` : ''}<button class="download-btn" onclick="window.location.href='/files/download?filename=${file}'"><i class="fas fa-download"></i></button></td></tr>`;
+                        });
+                        fileListHtml += "</tbody></table>";
+                        fileList.innerHTML = fileListHtml;
+                    }
+                })
+                .catch(error => console.error('Error fetching file list:', error));
+        }
+
+        function uploadFile(event) {
+            event.preventDefault();
+            var formData = new FormData(event.target);
+            fetch('/files/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loadFiles(); // Refresh the file list
+                })
+                .catch(error => console.error('Error uploading file:', error));
+        }
+
+        function getWordCount(filename) {
+            fetch(`/files/wordcount?filename=${filename}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => Promise.reject(text));
+                    }
+                })
+                .then(data => {
+                    displayWordCount(data);
+                    document.getElementById("word-count").style.display = "block"; // Show word count div
+                })
+                .catch(error => alert(error));
+        }
+
+        function displayWordCount(data) {
+            var wordCountDiv = document.getElementById("word-count");
+            var wordCountHtml = "<h1>Word Count</h1><table><tr><th>Word</th><th>Count</th></tr>";
+            if (typeof data === 'string') {
+                wordCountHtml += `<tr><td colspan="2">${data}</td></tr>`;
+            } else {
+                for (var word in data) {
+                    wordCountHtml += `<tr><td>${word}</td><td>${data[word]}</td></tr>`;
+                }
+            }
+            wordCountHtml += "</table>";
+            wordCountDiv.innerHTML = wordCountHtml;
+        }
+    </script>
+</head>
+<body>
+<header>
+    <img src="logo.png" alt="BMSIT Logo">
+    <h1>BMSIT Media Storage</h1>
+</header>
+
+<div id="login-page">
+    <main>
+        <h1>Login</h1>
+        <form onsubmit="login(event)">
+            <input type="text" id="username" placeholder="Username" required/>
+            <input type="password" id="password" placeholder="Password" required/>
+            <button type="submit">Login</button>
+        </form>
+    </main>
+</div>
+
+<div id="main-page" style="display: none;">
+    <main>
+        <h1>Upload File</h1>
+        <form onsubmit="uploadFile(event)">
+            <input type="file" name="file" required/>
+            <button type="submit">Upload</button>
+        </form>
+
+        <div id="file-list"></div>
+
+        <div id="word-count"></div>
+    </main>
+</div>
+</body>
+</html>
