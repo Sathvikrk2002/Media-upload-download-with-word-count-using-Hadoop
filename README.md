@@ -1,2 +1,4 @@
-# Media-upload-download-with-word-count-using-Hadoop
-Developed a web application for media file management with Hadoop Distributed File System (HDFS). Implemented HTML interface for file upload/download with word count feature &amp; Java backend for HDFS integration. Configured Hadoop for scalable storage and efficient data handling.
+# Media upload & download with word count using Hadoop 
+---
+- Created a web app for media management with file upload/download and word count features. Configured Hadoop with a Java backend for scalable storage and efficient data handling. 
+- Tools & Technologies: HTML, CSS, JavaScript, Java, Spring Boot, HDFS, IntelliJ IDEA
